@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>バイオピリン検査 - 申込完了</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">バイオピリン検査</div>
+            <button class="logout-btn" onclick="logout()">ログアウト</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="card text-center">
+            <!-- 成功アイコン -->
+            <div class="success-icon">
+                ✓
+            </div>
+
+            <h1 class="card-title">お申し込みありがとうございます</h1>
+            <p class="card-description mb-4">
+                検査キットの申込が完了しました。<br>
+                確認メールをお送りしましたので、ご確認ください。
+            </p>
+
+            <!-- キットID表示 -->
+            <div class="kit-id-display">
+                <div class="kit-id-label">キットID</div>
+                <div class="kit-id-value" id="kitIdValue">-</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem;">
+                今後の流れ
+            </h2>
+
+            <div style="position: relative; padding-left: 2rem;">
+                <!-- タイムライン線 -->
+                <div style="position: absolute; left: 0.5rem; top: 0; bottom: 0; width: 2px; background: var(--border-color);"></div>
+
+                <!-- ステップ1 -->
+                <div style="position: relative; margin-bottom: 2rem;">
+                    <div style="position: absolute; left: -1.5rem; top: 0; width: 1.5rem; height: 1.5rem; background: var(--success-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.75rem;">
+                        1
+                    </div>
+                    <div style="padding-top: 0.125rem;">
+                        <h3 style="font-weight: 600; font-size: 1rem; margin-bottom: 0.25rem;">
+                            申込完了メールの受信
+                        </h3>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary);">
+                            ご登録のメールアドレスに申込完了メールをお送りします。<br>
+                            メールが届かない場合は、迷惑メールフォルダをご確認ください。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- ステップ2 -->
+                <div style="position: relative; margin-bottom: 2rem;">
+                    <div style="position: absolute; left: -1.5rem; top: 0; width: 1.5rem; height: 1.5rem; background: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.75rem;">
+                        2
+                    </div>
+                    <div style="padding-top: 0.125rem;">
+                        <h3 style="font-weight: 600; font-size: 1rem; margin-bottom: 0.25rem;">
+                            検査キットの発送
+                        </h3>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary);">
+                            <strong>3〜5営業日以内</strong>にご登録の住所へ検査キットを発送いたします。<br>
+                            発送完了時に追跡番号をメールでお知らせします。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- ステップ3 -->
+                <div style="position: relative; margin-bottom: 2rem;">
+                    <div style="position: absolute; left: -1.5rem; top: 0; width: 1.5rem; height: 1.5rem; background: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.75rem;">
+                        3
+                    </div>
+                    <div style="padding-top: 0.125rem;">
+                        <h3 style="font-weight: 600; font-size: 1rem; margin-bottom: 0.25rem;">
+                            検体の採取・返送
+                        </h3>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary);">
+                            キットに同梱の説明書に従って検体を採取し、返送用封筒でご返送ください。<br>
+                            ご不明な点がございましたら、サポートまでお問い合わせください。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- ステップ4 -->
+                <div style="position: relative;">
+                    <div style="position: absolute; left: -1.5rem; top: 0; width: 1.5rem; height: 1.5rem; background: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.75rem;">
+                        4
+                    </div>
+                    <div style="padding-top: 0.125rem;">
+                        <h3 style="font-weight: 600; font-size: 1rem; margin-bottom: 0.25rem;">
+                            検査結果の通知
+                        </h3>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary);">
+                            検体到着後、<strong>2〜3週間程度</strong>で検査が完了します。<br>
+                            結果が出次第、マイページからご確認いただけます。メールでもお知らせします。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem;">
+                重要なお知らせ
+            </h2>
+
+            <div class="alert alert-info">
+                <strong>メールをご確認ください</strong><br>
+                <span id="userEmail">-</span> 宛に詳細な手順をお送りしています。
+            </div>
+
+            <ul style="list-style: none; padding: 0; margin-top: 1rem;">
+                <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--border-color); font-size: 0.875rem;">
+                    ✓ キット発送までに住所変更がある場合は、お早めにご連絡ください
+                </li>
+                <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--border-color); font-size: 0.875rem;">
+                    ✓ 検体は採取後、できるだけ早くご返送ください
+                </li>
+                <li style="padding: 0.5rem 0; font-size: 0.875rem;">
+                    ✓ 検査結果はマイページからいつでもご確認いただけます
+                </li>
+            </ul>
+        </div>
+
+        <div class="btn-group">
+            <a href="mypage.html" class="btn btn-primary" style="flex: 1;">
+                マイページへ
+            </a>
+            <button onclick="logout()" class="btn btn-secondary" style="flex: 1;">
+                ログアウト
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // セッション確認
+        const userEmail = sessionStorage.getItem('userEmail');
+        const kitId = sessionStorage.getItem('kitId');
+
+        if (!userEmail || !kitId) {
+            alert('セッションが切れました。再度ログインしてください。');
+            window.location.href = 'index.html';
+        }
+
+        // ページ読み込み時の処理
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('kitIdValue').textContent = kitId;
+            document.getElementById('userEmail').textContent = userEmail;
+        });
+
+        // ログアウト
+        function logout() {
+            sessionStorage.clear();
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

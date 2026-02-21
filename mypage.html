@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>バイオピリン検査 - マイページ</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">バイオピリン検査</div>
+            <button class="logout-btn" onclick="logout()">ログアウト</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- ユーザー情報 -->
+        <div class="card">
+            <div class="card-header">
+                <h1 class="card-title">マイページ</h1>
+                <p class="card-description">検査状況と結果をご確認いただけます</p>
+            </div>
+
+            <!-- キットID表示 -->
+            <div class="kit-id-display">
+                <div class="kit-id-label">キットID</div>
+                <div class="kit-id-value" id="kitIdValue">-</div>
+            </div>
+
+            <ul class="info-list">
+                <li class="info-list-item">
+                    <span class="info-label">登録メールアドレス</span>
+                    <span class="info-value" id="userEmail">-</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- ローディング表示 -->
+        <div id="loadingArea" class="card loading">
+            <div class="spinner"></div>
+            <p class="text-sm text-center">読み込み中...</p>
+        </div>
+
+        <!-- 検査状況 -->
+        <div id="statusArea" class="card hidden">
+            <h2 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem;">
+                検査状況
+            </h2>
+
+            <div id="statusContent"></div>
+        </div>
+
+        <!-- 検査結果 -->
+        <div id="resultArea" class="card hidden">
+            <h2 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem;">
+                検査結果
+            </h2>
+
+            <div id="resultContent"></div>
+        </div>
+
+        <!-- 申込情報がない場合 -->
+        <div id="noDataArea" class="card hidden">
+            <div class="alert alert-warning">
+                まだ申込情報が登録されていません。<br>
+                検査キットの申込を行ってください。
+            </div>
+
+            <a href="form.html" class="btn btn-primary btn-full mt-4">
+                申込フォームへ
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // セッション確認
+        const userEmail = sessionStorage.getItem('userEmail');
+        const kitId = sessionStorage.getItem('kitId');
+
+        if (!userEmail || !kitId) {
+            alert('セッションが切れました。再度ログインしてください。');
+            window.location.href = 'index.html';
+        }
+
+        // ページ読み込み時の処理
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('kitIdValue').textContent = kitId;
+            document.getElementById('userEmail').textContent = userEmail;
+
+            // データ読み込み
+            loadUserData();
+        });
+
+        // ログアウト
+        function logout() {
+            sessionStorage.clear();
+            window.location.href = 'index.html';
+        }
+
+        // ユーザーデータ読み込み
+        async function loadUserData() {
+            try {
+                // ここにGoogle Apps Script Web Appへのリクエストを実装
+                const response = await fetch('https://script.google.com/macros/s/AKfycbzNgBKrP724KjBDmNgIXkRDdCLUz_-xByolyaIj2qGQ-mRqv1eLqZLNVX1ijmN2Mots/exec', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'getUserData',
+                        kitId: kitId,
+                        email: userEmail
+                    })
+                });
+
+                const result = await response.json();
+
+                document.getElementById('loadingArea').classList.add('hidden');
+
+                if (result.success) {
+                    const data = result.data;
+
+                    if (!data.applicationData) {
+                        // 申込情報なし
+                        document.getElementById('noDataArea').classList.remove('hidden');
+                    } else {
+                        // 検査状況表示
+                        displayStatus(data.applicationData);
+
+                        // 検査結果があれば表示
+                        if (data.resultData) {
+                            displayResult(data.resultData);
+                        }
+                    }
+                } else {
+                    document.getElementById('noDataArea').classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('loadingArea').classList.add('hidden');
+                document.getElementById('noDataArea').classList.remove('hidden');
+            }
+        }
+
+        // 検査状況表示
+        function displayStatus(data) {
+            const statusArea = document.getElementById('statusArea');
+            const statusContent = document.getElementById('statusContent');
+
+            let statusText = '申込受付済み';
+            let statusClass = 'status-pending';
+
+            if (data.status === '検体受領') {
+                statusText = '検査中';
+                statusClass = 'status-processing';
+            } else if (data.status === '検査完了') {
+                statusText = '検査完了';
+                statusClass = 'status-completed';
+            }
+
+            statusContent.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <span style="font-weight: 600;">現在のステータス</span>
+                    <span class="status-badge ${statusClass}">${statusText}</span>
+                </div>
+
+                <ul class="info-list">
+                    <li class="info-list-item">
+                        <span class="info-label">お名前</span>
+                        <span class="info-value">${data.fullName || '-'}</span>
+                    </li>
+                    <li class="info-list-item">
+                        <span class="info-label">住所</span>
+                        <span class="info-value">${data.address || '-'}</span>
+                    </li>
+                    <li class="info-list-item">
+                        <span class="info-label">電話番号</span>
+                        <span class="info-value">${data.phone || '-'}</span>
+                    </li>
+                    <li class="info-list-item">
+                        <span class="info-label">申込日時</span>
+                        <span class="info-value">${data.applicationDate || '-'}</span>
+                    </li>
+                </ul>
+
+                ${data.status !== '検査完了' ? `
+                    <div class="alert alert-info" style="margin-top: 1.5rem;">
+                        <strong>お待ちください</strong><br>
+                        検査結果が出次第、メールとマイページでお知らせします。
+                    </div>
+                ` : ''}
+            `;
+
+            statusArea.classList.remove('hidden');
+        }
+
+        // 検査結果表示
+        function displayResult(data) {
+            const resultArea = document.getElementById('resultArea');
+            const resultContent = document.getElementById('resultContent');
+
+            resultContent.innerHTML = `
+                <div class="alert alert-success" style="margin-bottom: 1.5rem;">
+                    検査が完了しました。以下の結果をご確認ください。
+                </div>
+
+                <div class="result-card">
+                    <div class="result-header">
+                        <div class="result-title">バイオピリン検査結果</div>
+                        <div class="result-date">${data.testDate || '-'}</div>
+                    </div>
+
+                    <div class="result-content">
+                        ${generateResultItems(data)}
+                    </div>
+                </div>
+
+                <div class="alert alert-info" style="margin-top: 1.5rem;">
+                    <strong>結果についてのご注意</strong><br>
+                    この検査結果は医療行為ではなく、参考情報としてご利用ください。<br>
+                    気になる症状がある場合は、医療機関にご相談ください。
+                </div>
+
+                <button onclick="window.print()" class="btn btn-secondary btn-full" style="margin-top: 1rem;">
+                    結果を印刷
+                </button>
+            `;
+
+            resultArea.classList.remove('hidden');
+        }
+
+        // 検査結果項目生成
+        function generateResultItems(data) {
+            // 実際の検査項目に応じて調整してください
+            const items = [
+                { label: '総合評価', value: data.overall || '-' },
+                { label: '項目1', value: data.item1 || '-' },
+                { label: '項目2', value: data.item2 || '-' },
+                { label: '項目3', value: data.item3 || '-' },
+                { label: 'コメント', value: data.comment || '-' }
+            ];
+
+            return items.map(item => `
+                <div class="result-item">
+                    <span class="result-label">${item.label}</span>
+                    <span class="result-value">${item.value}</span>
+                </div>
+            `).join('');
+        }
+    </script>
+
+    <style>
+        @media print {
+            .header,
+            .logout-btn,
+            .btn,
+            #statusArea {
+                display: none;
+            }
+
+            .card {
+                box-shadow: none;
+                border: 1px solid #ccc;
+            }
+        }
+    </style>
+</body>
+</html>
